@@ -1,121 +1,168 @@
-<script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
-const API_URL = 'https://69f9cf08c509a40d3aa35b2b.mockapi.io/api/employee'
-
-const name = ref('')
-const designation = ref('')
-const employeeid = ref('')
-const salary = ref('')
-
-const employees = ref([])
-
-// Fetch employees
-const getEmployees = async () => {
-  const res = await axios.get(API_URL)
-  employees.value = res.data
-}
-
-// Add employee
-const addEmployee = async () => {
-  if (!name.value || !designation.value || !employeeid.value || !salary.value) {
-    alert('Fill all fields')
-    return
-  }
-
-  await axios.post(API_URL, {
-    name: name.value,
-    designation: designation.value,
-    employeeid: employeeid.value,
-    salary: Number(salary.value)
-  })
-
-  // Clear inputs
-  name.value = ''
-  designation.value = ''
-  employeeid.value = ''
-  salary.value = ''
-
-  getEmployees()
-}
-
-// Delete employee
-const deleteEmployee = async (id) => {
-  await axios.delete(`${API_URL}/${id}`)
-  getEmployees()
-}
-
-onMounted(getEmployees)
-</script>
-
 <template>
-  <div class="container">
-    <h1>Employee Management</h1>
+  <div class="container mt-4">
 
-    <div class="form">
-      <input v-model="name" placeholder="Name" />
-      <input v-model="designation" placeholder="Designation" />
-      <input v-model="employeeid" placeholder="Employee ID" />
-      <input v-model="salary" placeholder="Salary" type="number" />
+    <!-- Header -->
+    <h2 class="text-center text-primary mb-4">
+      Employee Management System
+    </h2>
 
-      <button @click="addEmployee">Add Employee</button>
-    </div>
+    <!-- Form -->
+    <div class="card p-4 shadow-sm mb-4">
 
-    <div class="list">
-      <div v-for="emp in employees" :key="emp.id" class="card">
-        <p><b>Name:</b> {{ emp.name }}</p>
-        <p><b>Designation:</b> {{ emp.designation }}</p>
-        <p><b>ID:</b> {{ emp.employeeid }}</p>
-        <p><b>Salary:</b> ₹{{ emp.salary }}</p>
+      <input v-model="name" placeholder="Name" class="form-control mb-2" />
+      <input v-model="designation" placeholder="Designation" class="form-control mb-2" />
+      <input v-model="department" placeholder="Department" class="form-control mb-2" />
+      <input v-model="salary" placeholder="Salary" class="form-control mb-3" />
 
-        <button @click="deleteEmployee(emp.id)">Delete</button>
+      <!-- Buttons -->
+      <div>
+        <button 
+          v-if="!editId" 
+          @click="addEmployee" 
+          class="btn btn-primary">
+          ➕ Add Employee
+        </button>
+
+        <button 
+          v-else 
+          @click="updateEmployee" 
+          class="btn btn-success">
+          ✔ Update
+        </button>
+
+        <button 
+          v-if="editId" 
+          @click="cancelEdit" 
+          class="btn btn-secondary ms-2">
+          ❌ Cancel
+        </button>
       </div>
     </div>
+
+    <!-- Table -->
+    <table class="table table-bordered table-striped table-hover shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Designation</th>
+          <th>Department</th>
+          <th>Salary</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="emp in employees" :key="emp.id">
+          <td>{{ emp.name }}</td>
+          <td>{{ emp.designation }}</td>
+          <td>{{ emp.department }}</td>
+          <td>{{ emp.salary }}</td>
+          <td>
+            <button 
+              @click="editEmployee(emp)" 
+              class="btn btn-warning btn-sm me-2">
+              ✏️
+            </button>
+
+            <button 
+              @click="deleteEmployee(emp.id)" 
+              class="btn btn-danger btn-sm">
+              🗑
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
   </div>
 </template>
 
+<script>
+import axios from "axios";
+
+const API_URL = "https://69fa2715c509a40d3aa3fb76.mockapi.io/api/employees";
+
+export default {
+  data() {
+    return {
+      employees: [],
+      name: "",
+      designation: "",
+      department: "",
+      salary: "",
+      editId: null
+    };
+  },
+
+  mounted() {
+    this.getEmployees();
+  },
+
+  methods: {
+    async getEmployees() {
+      const res = await axios.get(API_URL);
+      this.employees = res.data;
+    },
+
+    async addEmployee() {
+      if (!this.name || !this.designation) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      await axios.post(API_URL, {
+        name: this.name,
+        designation: this.designation,
+        department: this.department,
+        salary: this.salary
+      });
+
+      this.resetForm();
+      this.getEmployees();
+    },
+
+    editEmployee(emp) {
+      this.name = emp.name;
+      this.designation = emp.designation;
+      this.department = emp.department;
+      this.salary = emp.salary;
+      this.editId = emp.id;
+    },
+
+    async updateEmployee() {
+      await axios.put(`${API_URL}/${this.editId}`, {
+        name: this.name,
+        designation: this.designation,
+        department: this.department,
+        salary: this.salary
+      });
+
+      this.resetForm();
+      this.getEmployees();
+    },
+
+    async deleteEmployee(id) {
+      await axios.delete(`${API_URL}/${id}`);
+      this.getEmployees();
+    },
+
+    cancelEdit() {
+      this.resetForm();
+    },
+
+    resetForm() {
+      this.name = "";
+      this.designation = "";
+      this.department = "";
+      this.salary = "";
+      this.editId = null;
+    }
+  }
+};
+</script>
+
 <style>
-.container {
-  text-align: center;
-  padding: 20px;
-  background: #ffe4ec;
-  min-height: 100vh;
-}
-
-h1 {
-  color: #d63384;
-}
-
-.form input {
-  display: block;
-  margin: 10px auto;
-  padding: 10px;
-  width: 250px;
-  border: 2px solid #ff4d6d;
-  border-radius: 8px;
-}
-
-button {
-  padding: 10px 20px;
-  margin: 10px;
-  background: #ff4d6d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #c9184a;
-}
-
-.card {
-  background: #caffbf;
-  margin: 15px auto;
-  padding: 15px;
-  width: 300px;
-  border-radius: 10px;
-  border-left: 6px solid green;
+body {
+  background-color: #f8f9fa;
 }
 </style>

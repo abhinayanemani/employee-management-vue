@@ -1,30 +1,5 @@
-# Employee Management System
+# Vue 3 + Vite
 
-This project is built using Vue.js, Axios, and MockAPI.
+This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Features
-- Add Employee
-- View Employees
-- Update Employee
-- Delete Employee
-
-## Technologies Used
-- Vue.js
-- Axios
-- Bootstrap
-- MockAPI
-
-## Screenshots
-
-### Home Page
-![Home](screenshots/home.png)
-
-### Add Employee
-![Add](screenshots/add.png)
-
-### Edit Employee
-![Edit](screenshots/edit.png)
-
-### Delete Employee
-![Delete](screenshots/delete.png)
-# employee-management-
+Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
